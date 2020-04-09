@@ -1,3 +1,6 @@
+const MongoClient = require("mongodb").MongoClient;
+const url = "mongodb://localhost:27017/";
+const mongoClient = new MongoClient(url, { useNewUrlParser: true });
 const  cheerio = require('cheerio'), puppeteer = require('puppeteer');
 
 async function getPic() {
@@ -33,8 +36,18 @@ async function getPic() {
     });
 
     browser.close();
-    console.log(elements);
+    // console.log(elements);
 
+    await mongoClient.connect(function (err, client) {
+        const db = client.db("shazamdb");
+        const collection = db.collection("music");
+        collection.insertMany(elements, function (err, result) {
+            if (err) {
+                return console.log(err);
+            }
+            console.log(result.ops);
+        })
+    });
 
 }
 getPic();
